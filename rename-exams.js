@@ -1,0 +1,309 @@
+#!/usr/bin/env node
+/**
+ * rename-exams.js — raw/ 폴더의 PDF를 분석해 exams/ 로 자동 분류
+ *
+ * 사용법:
+ *   npm install                    # 최초 1회
+ *   node rename-exams.js           # 실행
+ *   node rename-exams.js --dry-run # 이동 없이 미리보기
+ *   node rename-exams.js --verbose # 추출 텍스트 함께 출력
+ */
+
+'use strict';
+
+const fs           = require('fs');
+const path         = require('path');
+const { execSync } = require('child_process');
+
+// ── 의존 모듈 확인 ────────────────────────────────────────────────────────
+let pdfParse;
+try { pdfParse = require('pdf-parse'); }
+catch {
+  console.error([
+    '',
+    '❌  pdf-parse 모듈이 없습니다. 먼저 설치해주세요:',
+    '',
+    '       npm install',
+    '',
+  ].join('\n'));
+  process.exit(1);
+}
+
+// ── 경로 / CLI 옵션 ───────────────────────────────────────────────────────
+const ROOT     = __dirname;
+const RAW      = path.join(ROOT, 'raw');
+const EXAMS    = path.join(ROOT, 'exams');
+const UNKNOWN  = path.join(ROOT, 'unknown');
+
+const DRY_RUN = process.argv.includes('--dry-run') || process.argv.includes('-n');
+const VERBOSE = process.argv.includes('--verbose') || process.argv.includes('-v');
+
+// ── ANSI 색상 ─────────────────────────────────────────────────────────────
+const p = (code, s) => `\x1b[${code}m${s}\x1b[0m`;
+const ok   = s => p('32', s);
+const warn = s => p('33', s);
+const bad  = s => p('31', s);
+const dim  = s => p('2',  s);
+const bold = s => p('1',  s);
+const cyan = s => p('36', s);
+
+// ── 과목 목록 (구체적인 것 → 짧은 것 순서로 나열해 최장 일치 우선) ──────
+const SUBJECT_KEYS = [
+  '화법과작문', '언어와매체',
+  '생활과윤리', '윤리와사상',
+  '확률과통계',
+  '동아시아사',
+  '과학탐구실험', '통합과학',
+  '생명과학', '지구과학', '물리학',
+  '기술가정',
+  '세계지리', '한국지리',
+  '사회문화', '정치와법',
+  '세계사', '한국사',
+  '독서', '문학',
+  '미적분', '기하',
+  '경제', '정보',
+  // 짧은 단어는 마지막에 (부분 일치 방지)
+  '수학', '국어', '영어', '사회', '화학', '과학',
+  '체육', '음악', '미술', '도덕',
+];
+
+// ── 텍스트 정규화 ─────────────────────────────────────────────────────────
+// 공백 제거 + 유니코드 로마 숫자 → ASCII 통일
+function normalize(raw) {
+  return raw
+    .replace(/\s+/g, '')
+    .replace(/[ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅰⅱⅲ]/g, ch => ({
+      'Ⅰ':'I','Ⅱ':'II','Ⅲ':'III','Ⅳ':'IV','Ⅴ':'V',
+      'Ⅵ':'VI','Ⅶ':'VII','Ⅷ':'VIII','Ⅸ':'IX','Ⅹ':'X',
+      'ⅰ':'I','ⅱ':'II','ⅲ':'III',
+    }[ch] || ch))
+    .replace(/[·•‧・]/g, '')
+    .replace(/（/g, '(').replace(/）/g, ')');
+}
+
+// ── 파싱 함수 ─────────────────────────────────────────────────────────────
+function parseYear(t) {
+  const m = t.match(/20[2-3]\d/);
+  return m ? m[0] : null;
+}
+
+function parseExamType(t) {
+  if (/1차정기고사|제1차정기|1차정기/.test(t)) return '1차-정기고사';
+  if (/2차정기고사|제2차정기|2차정기/.test(t)) return '2차-정기고사';
+  if (/중간고사/.test(t)) return '1차-정기고사';
+  if (/기말고사/.test(t)) return '2차-정기고사';
+  return null;
+}
+
+function parseGrade(t) {
+  // "N학년"은 맞추되 "YYYY학년도"의 뒤 숫자와 혼동하지 않도록
+  //  → lookbehind 로 앞이 숫자가 아닌 [1-3]학년 만 허용
+  //  → lookahead 로 바로 뒤가 "도"이면 (학년도) 제외
+  let m = t.match(/(?<!\d)([1-3])학년(?!도)/);
+  if (m) return `${m[1]}학년`;
+  // "고N" 표기
+  m = t.match(/고([1-3])(?!\d)/);
+  if (m) return `${m[1]}학년`;
+  return null;
+}
+
+function parseSubject(t) {
+  for (const key of SUBJECT_KEYS) {
+    const idx = t.indexOf(key);
+    if (idx === -1) continue;
+
+    // 바로 뒤에 로마 숫자가 붙으면 포함 (수학I, 수학II …)
+    // 단 'IN','IT' 같은 영어 단어로 이어지는 경우 방지
+    const tail = t.slice(idx + key.length, idx + key.length + 3);
+    if (/^III/.test(tail))                return key + 'Ⅲ';
+    if (/^II/.test(tail))                 return key + 'Ⅱ';
+    if (/^I[^A-Z가-힣]/.test(tail + ' ')) return key + 'Ⅰ';
+    return key;
+  }
+  return null;
+}
+
+// ── 파일 유틸 ─────────────────────────────────────────────────────────────
+function mkdir(dir) {
+  if (!DRY_RUN) fs.mkdirSync(dir, { recursive: true });
+}
+
+// 이미 같은 이름이 있으면 -2, -3 … 접미사 추가
+function uniqueDest(dir, name) {
+  let dest = path.join(dir, name);
+  if (!fs.existsSync(dest)) return dest;
+  const ext  = path.extname(name);
+  const base = path.basename(name, ext);
+  for (let n = 2; n < 1000; n++) {
+    dest = path.join(dir, `${base}-${n}${ext}`);
+    if (!fs.existsSync(dest)) return dest;
+  }
+  return dest;
+}
+
+function mv(src, dest) {
+  if (DRY_RUN) return;
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.renameSync(src, dest);
+}
+
+const rel = p => path.relative(ROOT, p).replace(/\\/g, '/');
+
+// ── PDF 수집 (raw/ 재귀 탐색) ─────────────────────────────────────────────
+function collectPDFs(dir) {
+  if (!fs.existsSync(dir)) return [];
+  const out = [];
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, e.name);
+    if (e.isDirectory())           out.push(...collectPDFs(full));
+    else if (/\.pdf$/i.test(e.name)) out.push(full);
+  }
+  return out;
+}
+
+// ── 메인 ─────────────────────────────────────────────────────────────────
+async function main() {
+  console.log('');
+  console.log(bold('기출문제 PDF 자동 분류'));
+  if (DRY_RUN) console.log(warn('  ⚑ dry-run 모드 — 실제로 파일을 이동하지 않습니다'));
+  console.log('');
+
+  // raw/ 없으면 생성 후 안내 종료
+  if (!fs.existsSync(RAW)) {
+    mkdir(RAW);
+    console.log(warn('raw/ 폴더가 없어 새로 만들었습니다.'));
+    console.log(dim('PDF 파일을 raw/ 에 넣고 다시 실행하세요.\n'));
+    return;
+  }
+
+  const pdfs = collectPDFs(RAW);
+  if (pdfs.length === 0) {
+    console.log(warn('raw/ 폴더에 PDF 파일이 없습니다.\n'));
+    return;
+  }
+
+  const w = pdfs.length.toString().length;   // 숫자 너비 (패딩용)
+  console.log(dim(`raw/ 에서 ${pdfs.length}개 발견\n`));
+
+  const moved   = [];
+  const unknown = [];
+
+  for (let i = 0; i < pdfs.length; i++) {
+    const src  = pdfs[i];
+    const name = path.basename(src);
+    const tag  = dim(`[${String(i + 1).padStart(w)}/${pdfs.length}]`);
+
+    console.log(`${tag} ${bold(name)}`);
+
+    // ── 텍스트 추출 ───────────────────────────────────────────────────────
+    let rawText = '';
+    try {
+      const buf  = fs.readFileSync(src);
+      const data = await pdfParse(buf, { max: 1 });
+      rawText = (data.text || '').trim();
+    } catch (e) {
+      const reason = `PDF 읽기 실패: ${e.message}`;
+      console.log(`     ${bad('✗')} ${reason}`);
+      const dest = uniqueDest(UNKNOWN, name);
+      mkdir(UNKNOWN);
+      mv(src, dest);
+      unknown.push({ name, src, dest, reason });
+      continue;
+    }
+
+    if (!rawText) {
+      const reason = '텍스트 레이어 없음 (이미지 스캔 PDF일 수 있음)';
+      console.log(`     ${warn('?')} ${reason}`);
+      const dest = uniqueDest(UNKNOWN, name);
+      mkdir(UNKNOWN);
+      mv(src, dest);
+      unknown.push({ name, src, dest, reason });
+      continue;
+    }
+
+    // ── 메타 파싱 ─────────────────────────────────────────────────────────
+    const norm    = normalize(rawText);
+    const year    = parseYear(norm);
+    const examType = parseExamType(norm);
+    const grade   = parseGrade(norm);
+    const subject = parseSubject(norm);
+
+    if (VERBOSE) {
+      console.log(dim(`     텍스트: ${norm.slice(0, 200)}`));
+      console.log(dim(`     파싱  : 연도=${year ?? '-'}  시험=${examType ?? '-'}  학년=${grade ?? '-'}  과목=${subject ?? '-'}`));
+    }
+
+    const missing = [
+      year      ? null : '연도',
+      examType  ? null : '시험종류',
+      grade     ? null : '학년',
+      subject   ? null : '과목',
+    ].filter(Boolean);
+
+    // ── 분류 ──────────────────────────────────────────────────────────────
+    if (missing.length === 0) {
+      const destDir  = path.join(EXAMS, year, examType);
+      const destName = `${grade}-${subject}.pdf`;
+      const dest     = uniqueDest(destDir, destName);
+      mkdir(destDir);
+      mv(src, dest);
+      console.log(`     ${ok('✓')} → ${cyan(rel(dest))}`);
+      moved.push({ name, dest });
+    } else {
+      const reason = `미검출: ${missing.join(', ')}`;
+      const dest   = uniqueDest(UNKNOWN, name);
+      mkdir(UNKNOWN);
+      mv(src, dest);
+      console.log(`     ${warn('?')} → ${warn(rel(dest))}  ${dim('(' + reason + ')')}`);
+      if (!VERBOSE) {
+        // 힌트: 추출 텍스트 앞부분만 보여줌
+        console.log(dim(`     힌트: ${norm.slice(0, 120)}`));
+      }
+      unknown.push({ name, src, dest, reason, hint: norm.slice(0, 200) });
+    }
+  }
+
+  // ── 요약 ─────────────────────────────────────────────────────────────────
+  console.log('');
+  console.log(bold('── 결과 요약 ─────────────────────────────────────'));
+  console.log(`  ${ok('✓ 분류 완료')}  ${bold(String(moved.length))}개`);
+  if (unknown.length > 0) {
+    console.log(`  ${warn('? 미분류   ')}  ${bold(String(unknown.length))}개  → unknown/ 폴더`);
+  }
+
+  if (unknown.length > 0) {
+    console.log('');
+    console.log(warn('미분류 파일 목록:'));
+    unknown.forEach(({ name, reason }) => {
+      console.log(`  ${bad('✗')} ${name}`);
+      console.log(`    ${dim(reason)}`);
+    });
+    console.log('');
+    console.log(dim('  파일명 또는 내용을 확인 후 직접 경로를 지정하거나,'));
+    console.log(dim('  exams/{연도}/{시험종류}/{학년}-{과목}.pdf 위치로 수동 이동하세요.'));
+  }
+
+  // ── generate-exam-list.js 자동 실행 ──────────────────────────────────────
+  if (!DRY_RUN) {
+    console.log('');
+    console.log(dim('인덱스 갱신 중 (generate-exam-list.js)…'));
+    try {
+      const out = execSync(`node "${path.join(ROOT, 'generate-exam-list.js')}"`, {
+        cwd: ROOT, encoding: 'utf8',
+      });
+      console.log(out.trimEnd());
+    } catch (e) {
+      console.log(bad('generate-exam-list.js 실행 실패:'), (e.stderr || e.message).trim());
+    }
+  } else {
+    console.log('');
+    console.log(dim('(dry-run 완료. 실제 실행 시 generate-exam-list.js 가 자동으로 갱신됩니다)'));
+  }
+
+  console.log('');
+}
+
+main().catch(e => {
+  console.error(bad('\n오류:'), e.message);
+  process.exit(1);
+});

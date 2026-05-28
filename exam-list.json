@@ -1,0 +1,65 @@
+[
+  {
+    "path": "exams/2025/1차-정기고사/1학년-수학.pdf",
+    "year": "2025",
+    "examType": "1차-정기고사",
+    "grade": "1학년",
+    "subject": "수학"
+  },
+  {
+    "path": "exams/2025/1차-정기고사/2학년-사회.pdf",
+    "year": "2025",
+    "examType": "1차-정기고사",
+    "grade": "2학년",
+    "subject": "사회"
+  },
+  {
+    "path": "exams/2025/2차-정기고사/3학년-수학.pdf",
+    "year": "2025",
+    "examType": "2차-정기고사",
+    "grade": "3학년",
+    "subject": "수학"
+  },
+  {
+    "path": "exams/2024/1차-정기고사/1학년-수학.pdf",
+    "year": "2024",
+    "examType": "1차-정기고사",
+    "grade": "1학년",
+    "subject": "수학"
+  },
+  {
+    "path": "exams/2024/1차-정기고사/1학년-영어.pdf",
+    "year": "2024",
+    "examType": "1차-정기고사",
+    "grade": "1학년",
+    "subject": "영어"
+  },
+  {
+    "path": "exams/2024/1차-정기고사/2학년-수학.pdf",
+    "year": "2024",
+    "examType": "1차-정기고사",
+    "grade": "2학년",
+    "subject": "수학"
+  },
+  {
+    "path": "exams/2024/1차-정기고사/3학년-국어.pdf",
+    "year": "2024",
+    "examType": "1차-정기고사",
+    "grade": "3학년",
+    "subject": "국어"
+  },
+  {
+    "path": "exams/2024/2차-정기고사/1학년-과학.pdf",
+    "year": "2024",
+    "examType": "2차-정기고사",
+    "grade": "1학년",
+    "subject": "과학"
+  },
+  {
+    "path": "exams/2024/2차-정기고사/2학년-영어.pdf",
+    "year": "2024",
+    "examType": "2차-정기고사",
+    "grade": "2학년",
+    "subject": "영어"
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "name": "exam-archive",
+  "version": "1.0.0",
+  "description": "기출문제 아카이브",
+  "scripts": {
+    "generate": "node generate-exam-list.js",
+    "rename": "node rename-exams.js"
+  },
+  "dependencies": {
+    "pdf-parse": "^1.1.1"
+  }
+}
