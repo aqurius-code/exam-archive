@@ -420,20 +420,25 @@
     .catch(() => showFetchError());
 
   /* ── Filter chip builders ── */
-  function unique(key) {
-    return [...new Set(allExams.map(e => e[key]))];
-  }
+  const FIELD = { year: 'year', type: 'examType', grade: 'grade', subject: 'subject' };
 
   function buildChips() {
-    const years    = unique('year').sort((a, b) => b.localeCompare(a));
-    const types    = unique('examType').sort();
-    const grades   = unique('grade').sort();
-    const subjects = unique('subject').sort();
+    ['year', 'type', 'grade', 'subject'].forEach(k => {
+      // 이 차원의 선택지 = 나머지 선택된 필터를 모두 적용한 부분집합에서 unique 추출
+      const subset = allExams.filter(e =>
+        (k === 'year'    || !sel.year    || e.year     === sel.year)    &&
+        (k === 'type'    || !sel.type    || e.examType === sel.type)    &&
+        (k === 'grade'   || !sel.grade   || e.grade    === sel.grade)   &&
+        (k === 'subject' || !sel.subject || e.subject  === sel.subject)
+      );
+      const values = [...new Set(subset.map(e => e[FIELD[k]]))];
+      k === 'year' ? values.sort((a, b) => b.localeCompare(a)) : values.sort();
 
-    fillChips('chips-year',    years,    'year');
-    fillChips('chips-type',    types,    'type');
-    fillChips('chips-grade',   grades,   'grade');
-    fillChips('chips-subject', subjects, 'subject');
+      // 선택된 값이 더 이상 유효하지 않으면 자동 해제
+      if (sel[k] !== null && !values.includes(sel[k])) sel[k] = null;
+
+      fillChips(`chips-${k}`, values, k);
+    });
   }
 
   function fillChips(id, values, key) {
