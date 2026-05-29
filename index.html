@@ -318,11 +318,88 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Unclassified banner ── */
+    .unclassified-banner {
+      background: #FFFBEB;
+      border-bottom: 1px solid #FDE68A;
+      padding: 0.625rem 2rem;
+    }
+    .unclassified-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #92400E;
+      background: none;
+      border: none;
+      font-family: inherit;
+      padding: 0;
+      width: 100%;
+      text-align: left;
+    }
+    .unclassified-toggle:hover { color: #78350F; }
+    .unclassified-toggle .arrow {
+      margin-left: auto;
+      font-size: 0.75rem;
+      transition: transform 0.2s;
+    }
+    .unclassified-toggle.open .arrow { transform: rotate(180deg); }
+    .unclassified-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #F59E0B;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border-radius: 9999px;
+      padding: 0.1rem 0.45rem;
+      min-width: 1.4rem;
+    }
+    .unclassified-list {
+      display: none;
+      margin-top: 0.625rem;
+      padding-left: 0;
+      list-style: none;
+      display: none;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+    .unclassified-list.open { display: flex; }
+    .unclassified-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+      background: #FFFDE7;
+      border: 1px solid #FDE68A;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8125rem;
+    }
+    .unclassified-filename {
+      font-weight: 600;
+      color: #78350F;
+      word-break: break-all;
+    }
+    .unclassified-hint {
+      font-size: 0.75rem;
+      color: #B45309;
+    }
+    .unclassified-hint code {
+      background: #FEF3C7;
+      padding: 0.05em 0.35em;
+      border-radius: 0.25em;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 640px) {
       header { padding: 1.25rem 1rem; }
       header h1 { font-size: 1.375rem; }
       .filters { padding: 0.75rem 1rem; }
+      .unclassified-banner { padding: 0.5rem 1rem; }
       main { padding: 1rem 1rem 2rem; }
       .viewer-title { font-size: 0.8125rem; }
       .zoom-sel { display: none; }
@@ -357,6 +434,17 @@
     <span class="filter-label">과목</span>
     <div class="chips" id="chips-subject"></div>
   </div>
+</div>
+
+<!-- Unclassified banner -->
+<div class="unclassified-banner" id="unclassified-banner" style="display:none">
+  <button class="unclassified-toggle" id="unclassified-toggle" onclick="toggleUnclassified()">
+    <span>📂 미분류 파일</span>
+    <span class="unclassified-badge" id="unclassified-count">0</span>
+    <span>건 — 파일명을 올바른 형식으로 변경 후 분류해주세요</span>
+    <span class="arrow">▼</span>
+  </button>
+  <ul class="unclassified-list" id="unclassified-list"></ul>
 </div>
 
 <main>
@@ -421,8 +509,53 @@
   /* ── Bootstrap ── */
   fetch('exam-list.json')
     .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(data => { allExams = data; buildChips(); render(); })
+    .then(data => {
+      // 구 형식(배열) 및 신 형식({ exams, unclassified }) 모두 지원
+      if (Array.isArray(data)) {
+        allExams = data;
+      } else {
+        allExams = data.exams || [];
+        renderUnclassified(data.unclassified || []);
+      }
+      buildChips();
+      render();
+    })
     .catch(() => showFetchError());
+
+  /* ── Unclassified banner ── */
+  function renderUnclassified(list) {
+    const banner = document.getElementById('unclassified-banner');
+    if (!list || list.length === 0) { banner.style.display = 'none'; return; }
+
+    banner.style.display = '';
+    document.getElementById('unclassified-count').textContent = list.length;
+
+    const ul = document.getElementById('unclassified-list');
+    ul.innerHTML = list.map(f => {
+      const hint = suggestFilename(f.filename);
+      return `<li class="unclassified-item">
+        <span class="unclassified-filename">📄 ${h(f.filename)}</span>
+        <span class="unclassified-hint">올바른 파일명 예시: <code>${h(hint)}</code></span>
+      </li>`;
+    }).join('');
+  }
+
+  function suggestFilename(name) {
+    // 괄호 안 과목 추출: 원안지(과학) → 과학
+    const subjectMatch = name.match(/[（(]([^）)]+)[）)]/);
+    const subject = subjectMatch ? subjectMatch[1].trim() : '과목';
+    // 학년 추출: 2학년, 3학년 등
+    const gradeMatch = name.match(/(\d학년)/);
+    const grade = gradeMatch ? gradeMatch[1] : '학년';
+    return `${grade}-${subject}.pdf`;
+  }
+
+  function toggleUnclassified() {
+    const toggle = document.getElementById('unclassified-toggle');
+    const list   = document.getElementById('unclassified-list');
+    const open   = list.classList.toggle('open');
+    toggle.classList.toggle('open', open);
+  }
 
   /* ── Filter chip builders ── */
   const FIELD = { year: 'year', semester: 'semester', type: 'examType', grade: 'grade', subject: 'subject' };

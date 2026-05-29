@@ -2,7 +2,7 @@
 /**
  * 사용법: node generate-exam-list.js
  *
- * exams/ 폴더를 순회해 exam-list.json 을 생성합니다.
+ * exams/ 폴더와 unknown/ 폴더를 순회해 exam-list.json 을 생성합니다.
  * PDF 파일을 추가하거나 삭제할 때마다 실행하세요.
  *
  * 필수 폴더 구조:
@@ -16,8 +16,11 @@
 const fs   = require('fs');
 const path = require('path');
 
-const EXAMS_DIR = path.join(__dirname, 'exams');
-const OUT_FILE  = path.join(__dirname, 'exam-list.json');
+const EXAMS_DIR   = path.join(__dirname, 'exams');
+const UNKNOWN_DIR = path.join(__dirname, 'unknown');
+const OUT_FILE    = path.join(__dirname, 'exam-list.json');
+
+const MIN_VALID_PDF_BYTES = 1024; // 1KB 미만은 빈 파일로 간주
 
 if (!fs.existsSync(EXAMS_DIR)) {
   console.error('❌ exams/ 폴더가 없습니다. 먼저 폴더를 만들어주세요.');
@@ -34,6 +37,12 @@ function walk(dir, acc = []) {
     if (entry.isDirectory()) {
       walk(full, acc);
     } else if (entry.name.toLowerCase().endsWith('.pdf')) {
+      const stat = fs.statSync(full);
+      if (stat.size < MIN_VALID_PDF_BYTES) {
+        console.warn(`  [건너뜀] 빈 파일 (${stat.size}바이트): ${full}`);
+        continue;
+      }
+
       const rel   = path.relative(EXAMS_DIR, full);
       const parts = rel.split(path.sep);
 
@@ -72,6 +81,32 @@ function walk(dir, acc = []) {
   return acc;
 }
 
+function walkUnknown(dir) {
+  const result = [];
+  let entries;
+  try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
+  catch { return result; }
+
+  for (const entry of entries) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      const sub = walkUnknown(full);
+      result.push(...sub);
+    } else if (entry.name.toLowerCase().endsWith('.pdf')) {
+      const stat = fs.statSync(full);
+      if (stat.size < MIN_VALID_PDF_BYTES) {
+        console.warn(`  [건너뜀] 빈 파일 (${stat.size}바이트): ${full}`);
+        continue;
+      }
+      result.push({
+        filename: entry.name,
+        path: 'unknown/' + path.relative(dir, full),
+      });
+    }
+  }
+  return result;
+}
+
 const exams = walk(EXAMS_DIR);
 
 // 연도 내림차순 → 학기 → 차수 → 학년 → 과목 순 정렬
@@ -83,9 +118,13 @@ exams.sort((a, b) => {
   return a.subject.localeCompare(b.subject);
 });
 
-fs.writeFileSync(OUT_FILE, JSON.stringify(exams, null, 2), 'utf8');
+const unclassified = fs.existsSync(UNKNOWN_DIR) ? walkUnknown(UNKNOWN_DIR) : [];
+unclassified.sort((a, b) => a.filename.localeCompare(b.filename, 'ko'));
 
-console.log(`\n✅ exam-list.json 생성 완료 (${exams.length}개)\n`);
+const output = { exams, unclassified };
+fs.writeFileSync(OUT_FILE, JSON.stringify(output, null, 2), 'utf8');
+
+console.log(`\n✅ exam-list.json 생성 완료 (시험지 ${exams.length}개, 미분류 ${unclassified.length}개)\n`);
 
 if (exams.length === 0) {
   console.log('  아직 PDF 파일이 없습니다.');
@@ -109,4 +148,9 @@ if (exams.length === 0) {
       });
     });
   });
+}
+
+if (unclassified.length > 0) {
+  console.log(`\n  📁 미분류 파일 (unknown/)`);
+  unclassified.forEach(f => console.log(`    - ${f.filename}`));
 }
