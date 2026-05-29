@@ -88,8 +88,8 @@ function parseYear(t) {
 }
 
 function parseExamType(t) {
-  if (/1차정기고사|제1차정기|1차정기/.test(t)) return '1차-정기고사';
-  if (/2차정기고사|제2차정기|2차정기/.test(t)) return '2차-정기고사';
+  if (/1차정기고사|제1차정기|1차정기|1차지필/.test(t)) return '1차-정기고사';
+  if (/2차정기고사|제2차정기|2차정기|2차지필/.test(t)) return '2차-정기고사';
   if (/중간고사/.test(t)) return '1차-정기고사';
   if (/기말고사/.test(t)) return '2차-정기고사';
   return null;
@@ -121,6 +121,27 @@ function parseSubject(t) {
     return key;
   }
   return null;
+}
+
+// ── 파일명 기반 파싱 (텍스트 레이어 없을 때 fallback) ────────────────────
+function parseFromFilename(filepath) {
+  const name = path.basename(filepath, '.pdf');
+  const norm = normalize(name);
+
+  const isInfo   = /문항정보표/.test(norm);
+  const year     = parseYear(norm);
+  const grade    = parseGrade(name);    // 공백 보존 상태로 파싱 (연도 숫자와 분리 유지)
+  const examType = parseExamType(norm);
+
+  // 괄호 안 과목 추출 — 마지막 괄호 그룹 사용
+  let subject = null;
+  const groups = name.match(/[（(]([^)）]+)[）)]/g);
+  if (groups) {
+    const inner = groups[groups.length - 1].replace(/^[（(]|[）)]$/g, '').trim();
+    subject = parseSubject(normalize(inner)) || inner;
+  }
+
+  return { year, grade, examType, subject, isInfo };
 }
 
 // ── 파일 유틸 ─────────────────────────────────────────────────────────────
@@ -212,12 +233,45 @@ async function main() {
     }
 
     if (!rawText) {
-      const reason = '텍스트 레이어 없음 (이미지 스캔 PDF일 수 있음)';
-      console.log(`     ${warn('?')} ${reason}`);
-      const dest = uniqueDest(UNKNOWN, name);
-      mkdir(UNKNOWN);
-      mv(src, dest);
-      unknown.push({ name, src, dest, reason });
+      console.log(`     ${warn('!')} 텍스트 레이어 없음 — 파일명으로 파싱 시도`);
+
+      const { year: fy, grade: fg, examType: fe, subject: fs, isInfo } = parseFromFilename(src);
+
+      if (VERBOSE) {
+        console.log(dim(`     파일명 파싱: 연도=${fy ?? '-'}  시험=${fe ?? '-'}  학년=${fg ?? '-'}  과목=${fs ?? '-'}  문항정보표=${isInfo}`));
+      }
+
+      if (isInfo && fy) {
+        // 문항정보표 → exams/{year}/문항정보표/
+        const destDir  = path.join(EXAMS, fy, '문항정보표');
+        const destName = (fg && fs) ? `${fg}-${fs}.pdf` : name;
+        const dest     = uniqueDest(destDir, destName);
+        mkdir(destDir);
+        mv(src, dest);
+        console.log(`     ${ok('✓')} → ${cyan(rel(dest))}  ${dim('(파일명 기반)')}`);
+        moved.push({ name, dest });
+      } else if (fy && fe && fg && fs) {
+        const destDir  = path.join(EXAMS, fy, fe);
+        const destName = `${fg}-${fs}.pdf`;
+        const dest     = uniqueDest(destDir, destName);
+        mkdir(destDir);
+        mv(src, dest);
+        console.log(`     ${ok('✓')} → ${cyan(rel(dest))}  ${dim('(파일명 기반)')}`);
+        moved.push({ name, dest });
+      } else {
+        const missing = [
+          fy ? null : '연도',
+          fe ? null : '시험종류',
+          fg ? null : '학년',
+          fs ? null : '과목',
+        ].filter(Boolean);
+        const reason = `텍스트 레이어 없음, 파일명 파싱 미검출: ${missing.join(', ')}`;
+        const dest   = uniqueDest(UNKNOWN, name);
+        mkdir(UNKNOWN);
+        mv(src, dest);
+        console.log(`     ${warn('?')} → ${warn(rel(dest))}  ${dim('(' + reason + ')')}`);
+        unknown.push({ name, src, dest, reason });
+      }
       continue;
     }
 
