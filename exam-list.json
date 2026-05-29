@@ -1,177 +1,570 @@
 [
   {
-    "path": "exams/2025/1차-정기고사/1학년-수학.pdf",
+    "path": "exams/2025/1학기/1차/1학년-수학.pdf",
     "year": "2025",
-    "examType": "1차-정기고사",
+    "semester": "1학기",
+    "examType": "1차",
     "grade": "1학년",
     "subject": "수학"
   },
   {
-    "path": "exams/2025/1차-정기고사/2학년-사회.pdf",
+    "path": "exams/2025/1학기/1차/2학년-사회.pdf",
     "year": "2025",
-    "examType": "1차-정기고사",
+    "semester": "1학기",
+    "examType": "1차",
     "grade": "2학년",
     "subject": "사회"
   },
   {
-    "path": "exams/2025/2차-정기고사/2학년-과학.pdf",
+    "path": "exams/2025/1학기/2차/2학년-과학.pdf",
     "year": "2025",
-    "examType": "2차-정기고사",
+    "semester": "1학기",
+    "examType": "2차",
     "grade": "2학년",
     "subject": "과학"
   },
   {
-    "path": "exams/2025/2차-정기고사/2학년-국어.pdf",
+    "path": "exams/2025/1학기/2차/2학년-국어.pdf",
     "year": "2025",
-    "examType": "2차-정기고사",
+    "semester": "1학기",
+    "examType": "2차",
     "grade": "2학년",
     "subject": "국어"
   },
   {
-    "path": "exams/2025/2차-정기고사/2학년-기술가정.pdf",
+    "path": "exams/2025/1학기/2차/2학년-기술가정.pdf",
     "year": "2025",
-    "examType": "2차-정기고사",
+    "semester": "1학기",
+    "examType": "2차",
     "grade": "2학년",
     "subject": "기술가정"
   },
   {
-    "path": "exams/2025/2차-정기고사/2학년-도덕.pdf",
+    "path": "exams/2025/1학기/2차/2학년-도덕.pdf",
     "year": "2025",
-    "examType": "2차-정기고사",
+    "semester": "1학기",
+    "examType": "2차",
     "grade": "2학년",
     "subject": "도덕"
   },
   {
-    "path": "exams/2025/2차-정기고사/2학년-수학.pdf",
+    "path": "exams/2025/1학기/2차/2학년-수학.pdf",
     "year": "2025",
-    "examType": "2차-정기고사",
+    "semester": "1학기",
+    "examType": "2차",
     "grade": "2학년",
     "subject": "수학"
   },
   {
-    "path": "exams/2025/2차-정기고사/2학년-역사.pdf",
+    "path": "exams/2025/1학기/2차/2학년-역사.pdf",
     "year": "2025",
-    "examType": "2차-정기고사",
+    "semester": "1학기",
+    "examType": "2차",
     "grade": "2학년",
     "subject": "역사"
   },
   {
-    "path": "exams/2025/2차-정기고사/2학년-영어.pdf",
+    "path": "exams/2025/1학기/2차/2학년-영어.pdf",
     "year": "2025",
-    "examType": "2차-정기고사",
+    "semester": "1학기",
+    "examType": "2차",
     "grade": "2학년",
     "subject": "영어"
   },
   {
-    "path": "exams/2025/2차-정기고사/2학년-정보.pdf",
+    "path": "exams/2025/1학기/2차/2학년-정보.pdf",
     "year": "2025",
-    "examType": "2차-정기고사",
+    "semester": "1학기",
+    "examType": "2차",
     "grade": "2학년",
     "subject": "정보"
   },
   {
-    "path": "exams/2025/2차-정기고사/3학년-과학.pdf",
+    "path": "exams/2025/1학기/2차/3학년-과학.pdf",
     "year": "2025",
-    "examType": "2차-정기고사",
+    "semester": "1학기",
+    "examType": "2차",
     "grade": "3학년",
     "subject": "과학"
   },
   {
-    "path": "exams/2025/2차-정기고사/3학년-국어.pdf",
+    "path": "exams/2025/1학기/2차/3학년-국어.pdf",
     "year": "2025",
-    "examType": "2차-정기고사",
+    "semester": "1학기",
+    "examType": "2차",
     "grade": "3학년",
     "subject": "국어"
   },
   {
-    "path": "exams/2025/2차-정기고사/3학년-기술가정.pdf",
+    "path": "exams/2025/1학기/2차/3학년-기술가정.pdf",
     "year": "2025",
-    "examType": "2차-정기고사",
+    "semester": "1학기",
+    "examType": "2차",
     "grade": "3학년",
     "subject": "기술가정"
   },
   {
-    "path": "exams/2025/2차-정기고사/3학년-수학.pdf",
+    "path": "exams/2025/1학기/2차/3학년-수학.pdf",
     "year": "2025",
-    "examType": "2차-정기고사",
+    "semester": "1학기",
+    "examType": "2차",
     "grade": "3학년",
     "subject": "수학"
   },
   {
-    "path": "exams/2025/2차-정기고사/3학년-수학-2.pdf",
+    "path": "exams/2025/1학기/2차/3학년-역사.pdf",
     "year": "2025",
-    "examType": "2차-정기고사",
-    "grade": "3학년",
-    "subject": "수학-2"
-  },
-  {
-    "path": "exams/2025/2차-정기고사/3학년-역사.pdf",
-    "year": "2025",
-    "examType": "2차-정기고사",
+    "semester": "1학기",
+    "examType": "2차",
     "grade": "3학년",
     "subject": "역사"
   },
   {
-    "path": "exams/2025/2차-정기고사/3학년-영어.pdf",
+    "path": "exams/2025/1학기/2차/3학년-영어.pdf",
     "year": "2025",
-    "examType": "2차-정기고사",
+    "semester": "1학기",
+    "examType": "2차",
     "grade": "3학년",
     "subject": "영어"
   },
   {
-    "path": "exams/2025/문항정보표/2학년-전체과목.pdf",
-    "year": "2025",
-    "examType": "문항정보표",
-    "grade": "2학년",
-    "subject": "전체과목"
-  },
-  {
-    "path": "exams/2025/문항정보표/3학년-전체과목.pdf",
-    "year": "2025",
-    "examType": "문항정보표",
-    "grade": "3학년",
-    "subject": "전체과목"
-  },
-  {
-    "path": "exams/2024/1차-정기고사/1학년-수학.pdf",
+    "path": "exams/2024/1학기/1차/2학년-과학.pdf",
     "year": "2024",
-    "examType": "1차-정기고사",
-    "grade": "1학년",
+    "semester": "1학기",
+    "examType": "1차",
+    "grade": "2학년",
+    "subject": "과학"
+  },
+  {
+    "path": "exams/2024/1학기/1차/2학년-국어.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "1차",
+    "grade": "2학년",
+    "subject": "국어"
+  },
+  {
+    "path": "exams/2024/1학기/1차/2학년-수학.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "1차",
+    "grade": "2학년",
     "subject": "수학"
   },
   {
-    "path": "exams/2024/1차-정기고사/1학년-영어.pdf",
+    "path": "exams/2024/1학기/1차/2학년-역사.pdf",
     "year": "2024",
-    "examType": "1차-정기고사",
-    "grade": "1학년",
+    "semester": "1학기",
+    "examType": "1차",
+    "grade": "2학년",
+    "subject": "역사"
+  },
+  {
+    "path": "exams/2024/1학기/1차/2학년-영어.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "1차",
+    "grade": "2학년",
     "subject": "영어"
   },
   {
-    "path": "exams/2024/1차-정기고사/2학년-수학.pdf",
+    "path": "exams/2024/1학기/1차/3학년-과학.pdf",
     "year": "2024",
-    "examType": "1차-정기고사",
-    "grade": "2학년",
-    "subject": "수학"
+    "semester": "1학기",
+    "examType": "1차",
+    "grade": "3학년",
+    "subject": "과학"
   },
   {
-    "path": "exams/2024/1차-정기고사/3학년-국어.pdf",
+    "path": "exams/2024/1학기/1차/3학년-국어.pdf",
     "year": "2024",
-    "examType": "1차-정기고사",
+    "semester": "1학기",
+    "examType": "1차",
     "grade": "3학년",
     "subject": "국어"
   },
   {
-    "path": "exams/2024/2차-정기고사/1학년-과학.pdf",
+    "path": "exams/2024/1학기/1차/3학년-수학.pdf",
     "year": "2024",
-    "examType": "2차-정기고사",
+    "semester": "1학기",
+    "examType": "1차",
+    "grade": "3학년",
+    "subject": "수학"
+  },
+  {
+    "path": "exams/2024/1학기/1차/3학년-역사.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "1차",
+    "grade": "3학년",
+    "subject": "역사"
+  },
+  {
+    "path": "exams/2024/1학기/1차/3학년-영어.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "1차",
+    "grade": "3학년",
+    "subject": "영어"
+  },
+  {
+    "path": "exams/2024/1학기/2차/2학년-과학.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "2차",
+    "grade": "2학년",
+    "subject": "과학"
+  },
+  {
+    "path": "exams/2024/1학기/2차/2학년-국어.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "2차",
+    "grade": "2학년",
+    "subject": "국어"
+  },
+  {
+    "path": "exams/2024/1학기/2차/2학년-기술가정.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "2차",
+    "grade": "2학년",
+    "subject": "기술가정"
+  },
+  {
+    "path": "exams/2024/1학기/2차/2학년-도덕.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "2차",
+    "grade": "2학년",
+    "subject": "도덕"
+  },
+  {
+    "path": "exams/2024/1학기/2차/2학년-수학.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "2차",
+    "grade": "2학년",
+    "subject": "수학"
+  },
+  {
+    "path": "exams/2024/1학기/2차/2학년-역사.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "2차",
+    "grade": "2학년",
+    "subject": "역사"
+  },
+  {
+    "path": "exams/2024/1학기/2차/2학년-영어.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "2차",
+    "grade": "2학년",
+    "subject": "영어"
+  },
+  {
+    "path": "exams/2024/1학기/2차/2학년-정보.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "2차",
+    "grade": "2학년",
+    "subject": "정보"
+  },
+  {
+    "path": "exams/2024/1학기/2차/3학년-과학.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "2차",
+    "grade": "3학년",
+    "subject": "과학"
+  },
+  {
+    "path": "exams/2024/1학기/2차/3학년-국어.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "2차",
+    "grade": "3학년",
+    "subject": "국어"
+  },
+  {
+    "path": "exams/2024/1학기/2차/3학년-기술가정.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "2차",
+    "grade": "3학년",
+    "subject": "기술가정"
+  },
+  {
+    "path": "exams/2024/1학기/2차/3학년-수학.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "2차",
+    "grade": "3학년",
+    "subject": "수학"
+  },
+  {
+    "path": "exams/2024/1학기/2차/3학년-역사.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "2차",
+    "grade": "3학년",
+    "subject": "역사"
+  },
+  {
+    "path": "exams/2024/1학기/2차/3학년-영어.pdf",
+    "year": "2024",
+    "semester": "1학기",
+    "examType": "2차",
+    "grade": "3학년",
+    "subject": "영어"
+  },
+  {
+    "path": "exams/2024/2학기/1차/2학년-과학.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "1차",
+    "grade": "2학년",
+    "subject": "과학"
+  },
+  {
+    "path": "exams/2024/2학기/1차/2학년-국어.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "1차",
+    "grade": "2학년",
+    "subject": "국어"
+  },
+  {
+    "path": "exams/2024/2학기/1차/2학년-수학.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "1차",
+    "grade": "2학년",
+    "subject": "수학"
+  },
+  {
+    "path": "exams/2024/2학기/1차/2학년-역사.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "1차",
+    "grade": "2학년",
+    "subject": "역사"
+  },
+  {
+    "path": "exams/2024/2학기/1차/2학년-영어.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "1차",
+    "grade": "2학년",
+    "subject": "영어"
+  },
+  {
+    "path": "exams/2024/2학기/1차/3학년-과학.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "1차",
+    "grade": "3학년",
+    "subject": "과학"
+  },
+  {
+    "path": "exams/2024/2학기/1차/3학년-국어.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "1차",
+    "grade": "3학년",
+    "subject": "국어"
+  },
+  {
+    "path": "exams/2024/2학기/1차/3학년-사회.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "1차",
+    "grade": "3학년",
+    "subject": "사회"
+  },
+  {
+    "path": "exams/2024/2학기/1차/3학년-수학.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "1차",
+    "grade": "3학년",
+    "subject": "수학"
+  },
+  {
+    "path": "exams/2024/2학기/1차/3학년-영어.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "1차",
+    "grade": "3학년",
+    "subject": "영어"
+  },
+  {
+    "path": "exams/2024/2학기/2차/1학년-과학.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
     "grade": "1학년",
     "subject": "과학"
   },
   {
-    "path": "exams/2024/2차-정기고사/2학년-영어.pdf",
+    "path": "exams/2024/2학기/2차/1학년-국어.pdf",
     "year": "2024",
-    "examType": "2차-정기고사",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "1학년",
+    "subject": "국어"
+  },
+  {
+    "path": "exams/2024/2학기/2차/1학년-기술가정.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "1학년",
+    "subject": "기술가정"
+  },
+  {
+    "path": "exams/2024/2학기/2차/1학년-도덕.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "1학년",
+    "subject": "도덕"
+  },
+  {
+    "path": "exams/2024/2학기/2차/1학년-사회.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "1학년",
+    "subject": "사회"
+  },
+  {
+    "path": "exams/2024/2학기/2차/1학년-수학.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "1학년",
+    "subject": "수학"
+  },
+  {
+    "path": "exams/2024/2학기/2차/1학년-영어.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "1학년",
+    "subject": "영어"
+  },
+  {
+    "path": "exams/2024/2학기/2차/2학년-과학.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
     "grade": "2학년",
+    "subject": "과학"
+  },
+  {
+    "path": "exams/2024/2학기/2차/2학년-국어.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "2학년",
+    "subject": "국어"
+  },
+  {
+    "path": "exams/2024/2학기/2차/2학년-기술가정.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "2학년",
+    "subject": "기술가정"
+  },
+  {
+    "path": "exams/2024/2학기/2차/2학년-도덕.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "2학년",
+    "subject": "도덕"
+  },
+  {
+    "path": "exams/2024/2학기/2차/2학년-수학.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "2학년",
+    "subject": "수학"
+  },
+  {
+    "path": "exams/2024/2학기/2차/2학년-역사.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "2학년",
+    "subject": "역사"
+  },
+  {
+    "path": "exams/2024/2학기/2차/2학년-영어.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "2학년",
+    "subject": "영어"
+  },
+  {
+    "path": "exams/2024/2학기/2차/2학년-정보.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "2학년",
+    "subject": "정보"
+  },
+  {
+    "path": "exams/2024/2학기/2차/3학년-과학.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "3학년",
+    "subject": "과학"
+  },
+  {
+    "path": "exams/2024/2학기/2차/3학년-국어.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "3학년",
+    "subject": "국어"
+  },
+  {
+    "path": "exams/2024/2학기/2차/3학년-기술가정.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "3학년",
+    "subject": "기술가정"
+  },
+  {
+    "path": "exams/2024/2학기/2차/3학년-사회.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "3학년",
+    "subject": "사회"
+  },
+  {
+    "path": "exams/2024/2학기/2차/3학년-수학.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "3학년",
+    "subject": "수학"
+  },
+  {
+    "path": "exams/2024/2학기/2차/3학년-영어.pdf",
+    "year": "2024",
+    "semester": "2학기",
+    "examType": "2차",
+    "grade": "3학년",
     "subject": "영어"
   }
 ]

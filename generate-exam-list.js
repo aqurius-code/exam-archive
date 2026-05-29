@@ -6,11 +6,11 @@
  * PDF 파일을 추가하거나 삭제할 때마다 실행하세요.
  *
  * 필수 폴더 구조:
- *   exams/{연도}/{시험종류}/{학년}-{과목}.pdf
+ *   exams/{연도}/{학기}/{차수}/{학년}-{과목}.pdf
  *
  * 예시:
- *   exams/2024/1차-정기고사/1학년-수학.pdf
- *   exams/2024/2차-정기고사/3학년-영어.pdf
+ *   exams/2024/1학기/1차/2학년-수학.pdf
+ *   exams/2024/2학기/2차/3학년-영어.pdf
  */
 
 const fs   = require('fs');
@@ -35,32 +35,38 @@ function walk(dir, acc = []) {
       walk(full, acc);
     } else if (entry.name.toLowerCase().endsWith('.pdf')) {
       const rel   = path.relative(EXAMS_DIR, full);
-      const parts = rel.split(path.sep);   // [연도, 시험종류, 학년-과목.pdf]
+      const parts = rel.split(path.sep);
 
-      if (parts.length !== 3) {
-        console.warn(`  [건너뜀] 예상과 다른 경로: ${rel}`);
-        continue;
+      // 정규 시험: exams/{연도}/{학기}/{차수}/{학년}-{과목}.pdf (4단계)
+      if (parts.length === 4) {
+        const [year, semester, examType, filename] = parts;
+        const base = path.basename(filename, '.pdf');
+        const dash = base.indexOf('-');
+
+        if (dash === -1) {
+          console.warn(`  [건너뜀] "학년-과목" 형식이 아닙니다: ${filename}`);
+          continue;
+        }
+
+        const grade   = base.slice(0, dash);
+        const subject = base.slice(dash + 1);
+
+        acc.push({
+          path: 'exams/' + parts.join('/'),
+          year,
+          semester,
+          examType,
+          grade,
+          subject,
+        });
+
+      // 문항정보표: exams/{연도}/문항정보표/{파일}.pdf (3단계) — 목록에서 제외
+      } else if (parts.length === 3 && parts[1] === '문항정보표') {
+        // 시험지가 아니므로 exam-list.json 에 포함하지 않음
+
+      } else {
+        console.warn(`  [건너뜀] 예상과 다른 경로 (${parts.length}단계): ${rel}`);
       }
-
-      const [year, examType, filename] = parts;
-      const base = path.basename(filename, '.pdf');
-      const dash = base.indexOf('-');
-
-      if (dash === -1) {
-        console.warn(`  [건너뜀] "학년-과목" 형식이 아닙니다: ${filename}`);
-        continue;
-      }
-
-      const grade   = base.slice(0, dash);
-      const subject = base.slice(dash + 1);
-
-      acc.push({
-        path:     'exams/' + parts.join('/'),   // URL 경로는 항상 슬래시
-        year,
-        examType,
-        grade,
-        subject,
-      });
     }
   }
   return acc;
@@ -68,9 +74,10 @@ function walk(dir, acc = []) {
 
 const exams = walk(EXAMS_DIR);
 
-// 연도 내림차순 → 시험종류 → 학년 → 과목 순 정렬
+// 연도 내림차순 → 학기 → 차수 → 학년 → 과목 순 정렬
 exams.sort((a, b) => {
   if (a.year     !== b.year)     return b.year.localeCompare(a.year);
+  if (a.semester !== b.semester) return a.semester.localeCompare(b.semester);
   if (a.examType !== b.examType) return a.examType.localeCompare(b.examType);
   if (a.grade    !== b.grade)    return a.grade.localeCompare(b.grade);
   return a.subject.localeCompare(b.subject);
@@ -82,20 +89,24 @@ console.log(`\n✅ exam-list.json 생성 완료 (${exams.length}개)\n`);
 
 if (exams.length === 0) {
   console.log('  아직 PDF 파일이 없습니다.');
-  console.log('  exams/{연도}/{시험종류}/{학년}-{과목}.pdf 형식으로 추가해주세요.');
+  console.log('  exams/{연도}/{학기}/{차수}/{학년}-{과목}.pdf 형식으로 추가해주세요.');
 } else {
-  const byYear = {};
+  const tree = {};
   exams.forEach(e => {
-    byYear[e.year] = byYear[e.year] || {};
-    byYear[e.year][e.examType] = byYear[e.year][e.examType] || [];
-    byYear[e.year][e.examType].push(`${e.grade} ${e.subject}`);
+    tree[e.year] ??= {};
+    tree[e.year][e.semester] ??= {};
+    tree[e.year][e.semester][e.examType] ??= [];
+    tree[e.year][e.semester][e.examType].push(`${e.grade} ${e.subject}`);
   });
 
-  Object.keys(byYear).sort((a,b) => b.localeCompare(a)).forEach(year => {
+  Object.keys(tree).sort((a, b) => b.localeCompare(a)).forEach(year => {
     console.log(`  ${year}`);
-    Object.keys(byYear[year]).sort().forEach(type => {
-      console.log(`    ${type}`);
-      byYear[year][type].forEach(item => console.log(`      - ${item}`));
+    Object.keys(tree[year]).sort().forEach(sem => {
+      console.log(`    ${sem}`);
+      Object.keys(tree[year][sem]).sort().forEach(type => {
+        console.log(`      ${type}`);
+        tree[year][sem][type].forEach(item => console.log(`        - ${item}`));
+      });
     });
   });
 }

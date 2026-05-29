@@ -143,6 +143,7 @@
       border-radius: 9999px;
     }
     .by { background: var(--primary-lt); color: var(--primary); }
+    .bs { background: #FFF7ED; color: #EA580C; }
     .bt { background: #F0FDF4; color: #16A34A; }
 
     .card-subject {
@@ -341,6 +342,10 @@
     <div class="chips" id="chips-year"></div>
   </div>
   <div class="filter-row">
+    <span class="filter-label">학기</span>
+    <div class="chips" id="chips-semester"></div>
+  </div>
+  <div class="filter-row">
     <span class="filter-label">시험</span>
     <div class="chips" id="chips-type"></div>
   </div>
@@ -405,7 +410,7 @@
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
   /* ── State ── */
-  const sel = { year: null, type: null, grade: null, subject: null };
+  const sel = { year: null, semester: null, type: null, grade: null, subject: null };
   let allExams = [];
   let currentList = [];
   let pdfDoc = null;
@@ -420,16 +425,17 @@
     .catch(() => showFetchError());
 
   /* ── Filter chip builders ── */
-  const FIELD = { year: 'year', type: 'examType', grade: 'grade', subject: 'subject' };
+  const FIELD = { year: 'year', semester: 'semester', type: 'examType', grade: 'grade', subject: 'subject' };
 
   function buildChips() {
-    ['year', 'type', 'grade', 'subject'].forEach(k => {
+    ['year', 'semester', 'type', 'grade', 'subject'].forEach(k => {
       // 이 차원의 선택지 = 나머지 선택된 필터를 모두 적용한 부분집합에서 unique 추출
       const subset = allExams.filter(e =>
-        (k === 'year'    || !sel.year    || e.year     === sel.year)    &&
-        (k === 'type'    || !sel.type    || e.examType === sel.type)    &&
-        (k === 'grade'   || !sel.grade   || e.grade    === sel.grade)   &&
-        (k === 'subject' || !sel.subject || e.subject  === sel.subject)
+        (k === 'year'     || !sel.year     || e.year     === sel.year)     &&
+        (k === 'semester' || !sel.semester || e.semester === sel.semester) &&
+        (k === 'type'     || !sel.type     || e.examType === sel.type)     &&
+        (k === 'grade'    || !sel.grade    || e.grade    === sel.grade)    &&
+        (k === 'subject'  || !sel.subject  || e.subject  === sel.subject)
       );
       const values = [...new Set(subset.map(e => e[FIELD[k]]))];
       k === 'year' ? values.sort((a, b) => b.localeCompare(a)) : values.sort();
@@ -461,7 +467,7 @@
   function refresh() { buildChips(); render(); syncResetBtn(); }
 
   function resetFilters() {
-    sel.year = sel.type = sel.grade = sel.subject = null;
+    sel.year = sel.semester = sel.type = sel.grade = sel.subject = null;
     refresh();
   }
 
@@ -473,10 +479,11 @@
   /* ── Filtering & rendering ── */
   function getFiltered() {
     return allExams.filter(e =>
-      (!sel.year    || e.year     === sel.year)    &&
-      (!sel.type    || e.examType === sel.type)    &&
-      (!sel.grade   || e.grade    === sel.grade)   &&
-      (!sel.subject || e.subject  === sel.subject)
+      (!sel.year     || e.year     === sel.year)     &&
+      (!sel.semester || e.semester === sel.semester) &&
+      (!sel.type     || e.examType === sel.type)     &&
+      (!sel.grade    || e.grade    === sel.grade)    &&
+      (!sel.subject  || e.subject  === sel.subject)
     );
   }
 
@@ -509,6 +516,7 @@
       <div class="card" onclick="openExam(${i})">
         <div class="card-top">
           <span class="badge by">${h(e.year)}</span>
+          <span class="badge bs">${h(e.semester)}</span>
           <span class="badge bt">${h(e.examType)}</span>
         </div>
         <div class="card-subject">${h(e.subject)}</div>
@@ -539,7 +547,7 @@
   /* ── PDF Viewer ── */
   function openExam(i) {
     const e = currentList[i];
-    openPDF(e.path, `${e.year} ${e.examType} · ${e.grade} ${e.subject}`);
+    openPDF(e.path, `${e.year} ${e.semester} ${e.examType} · ${e.grade} ${e.subject}`);
   }
 
   async function openPDF(filePath, title) {
