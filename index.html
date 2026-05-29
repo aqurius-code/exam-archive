@@ -380,6 +380,8 @@
           <option value="1.5">150%</option>
           <option value="2">200%</option>
         </select>
+        <button class="icon-btn" onclick="rotate(-90)" title="왼쪽으로 회전">↺</button>
+        <button class="icon-btn" onclick="rotate(90)"  title="오른쪽으로 회전">↻</button>
         <a id="dl-link" style="display:none">
           <button class="icon-btn" title="다운로드 (↓)">↓</button>
         </a>
@@ -409,6 +411,7 @@
   let pdfDoc = null;
   let curPage = 1;
   let zoomFactor = 1;
+  let pageRotation = 0;
 
   /* ── Bootstrap ── */
   fetch('exam-list.json')
@@ -544,6 +547,7 @@
     dl.setAttribute('download', filePath.split('/').pop());
     dl.style.display = '';
 
+    pageRotation = 0;
     pdfDoc   = await pdfjsLib.getDocument(filePath).promise;
     curPage  = 1;
     await renderPage(curPage);
@@ -551,23 +555,35 @@
 
   async function renderPage(n) {
     showLoading(true);
-    const page = await pdfDoc.getPage(n);
-    const canvas = document.getElementById('pdf-canvas');
-    const body   = document.getElementById('viewer-body');
+    try {
+      const page   = await pdfDoc.getPage(n);
+      const canvas = document.getElementById('pdf-canvas');
+      const body   = document.getElementById('viewer-body');
+      const ctx    = canvas.getContext('2d');
 
-    const bodyW    = body.clientWidth - 40;
-    const rawVp    = page.getViewport({ scale: 1 });
-    const autoScale = Math.min(bodyW / rawVp.width, 2.5);
-    const vp       = page.getViewport({ scale: autoScale * zoomFactor });
+      const totalRot  = (page.rotate + pageRotation) % 360;
+      const bodyW     = body.clientWidth - 40;
+      const rawVp     = page.getViewport({ scale: 1, rotation: totalRot });
+      const autoScale = Math.min(bodyW / rawVp.width, 2.5);
+      const vp        = page.getViewport({ scale: autoScale * zoomFactor, rotation: totalRot });
 
-    canvas.width  = vp.width;
-    canvas.height = vp.height;
-    await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+      canvas.width  = vp.width;
+      canvas.height = vp.height;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    document.getElementById('page-info').textContent = `${n} / ${pdfDoc.numPages}`;
-    document.getElementById('prev-btn').disabled = n <= 1;
-    document.getElementById('next-btn').disabled = n >= pdfDoc.numPages;
-    showLoading(false);
+      await page.render({ canvasContext: ctx, viewport: vp, intent: 'display' }).promise;
+
+      document.getElementById('page-info').textContent = `${n} / ${pdfDoc.numPages}`;
+      document.getElementById('prev-btn').disabled = n <= 1;
+      document.getElementById('next-btn').disabled = n >= pdfDoc.numPages;
+      showLoading(false);
+    } catch (err) {
+      console.error('PDF render error:', err);
+      document.getElementById('loading-msg').innerHTML =
+        '<span style="color:#EF4444">페이지 렌더링 실패: ' + err.message + '</span>';
+    }
   }
 
   function showLoading(on) {
@@ -580,6 +596,12 @@
     const next = curPage + d;
     if (next < 1 || next > pdfDoc.numPages) return;
     curPage = next;
+    await renderPage(curPage);
+  }
+
+  async function rotate(deg) {
+    pageRotation = (pageRotation + deg + 360) % 360;
+    if (!pdfDoc) return;
     await renderPage(curPage);
   }
 
